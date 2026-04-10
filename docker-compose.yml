@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  ecowitt-proxy:
+    build: .
+    image: ecowitt-windy-proxy:latest
+    container_name: ecowitt-windy-proxy
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      - PORT=8888
+      - DATA_DIR=/app/data
+      - WINDY_STATION_ID=${WINDY_STATION_ID}
+      - WINDY_STATION_PASSWORD=${WINDY_STATION_PASSWORD}
+    volumes:
+      # Mount a host directory so data survives container restarts
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
