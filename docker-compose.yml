@@ -13,11 +13,16 @@ services:
       - DATA_DIR=/app/data
       - WINDY_STATION_ID=${WINDY_STATION_ID}
       - WINDY_STATION_PASSWORD=${WINDY_STATION_PASSWORD}
+      - PUSHOVER_KEY=${PUSHOVER_KEY}
+      - PUSHOVER_APP_TOKEN=${PUSHOVER_APP_TOKEN}
     volumes:
-      # Mount a host directory so data survives container restarts
-      - ./data:/app/data
+      # Named volume – Docker manages permissions, data survives container restarts
+      - ecowitt-data:/app/data
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8888/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+
+volumes:
+  ecowitt-data:

@@ -61,13 +61,21 @@ function convertEcowittToWindy(ecowitt) {
   }
 
   // ── Dew point ─────────────────────────────────────────────────────────────
+  // Use station-supplied value if present, otherwise derive via Magnus formula
   if (ecowitt.dewptf != null) {
     windy.dewpoint = F_TO_C(parseFloat(ecowitt.dewptf));
+  } else if (ecowitt.tempf != null && ecowitt.humidity != null) {
+    const tc = F_TO_C(parseFloat(ecowitt.tempf));
+    const rh = parseFloat(ecowitt.humidity);
+    const gamma = Math.log(rh / 100) + (17.625 * tc) / (243.04 + tc);
+    windy.dewpoint = parseFloat(((243.04 * gamma) / (17.625 - gamma)).toFixed(1));
   }
 
   // ── Precipitation (hourly accumulation) ───────────────────────────────────
-  if (ecowitt.hourlyrainin != null) {
-    windy.precip = IN_TO_MM(parseFloat(ecowitt.hourlyrainin));
+  // hourlyrainin is the standard field; hrain_piezo is the WS90 piezo variant
+  const hourlyRain = ecowitt.hourlyrainin ?? ecowitt.hrain_piezo;
+  if (hourlyRain != null) {
+    windy.precip = IN_TO_MM(parseFloat(hourlyRain));
   }
 
   // ── Solar & UV ────────────────────────────────────────────────────────────

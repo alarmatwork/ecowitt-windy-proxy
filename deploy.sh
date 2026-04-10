@@ -21,9 +21,9 @@ echo "🐳 Building and starting container on NAS ..."
 ssh "${REMOTE_USER}@${REMOTE_HOST}" bash -s << EOF
   set -e
   cd "${REMOTE_DIR}"
-  mkdir -p data
-  sudo /usr/local/bin/docker compose pull --quiet 2>/dev/null || true
-  sudo /usr/local/bin/docker compose up -d --build --remove-orphans
+sudo /usr/local/bin/docker compose pull --quiet 2>/dev/null || true
+  sudo /usr/local/bin/docker compose down --remove-orphans
+  sudo /usr/local/bin/docker compose up -d --build
   echo "✅ Container status:"
   sudo /usr/local/bin/docker compose ps
 EOF

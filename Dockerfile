@@ -22,8 +22,8 @@ COPY --from=deps /build/node_modules ./node_modules
 COPY src/ ./src/
 COPY package.json ./
 
-# Create the data directory that persists weather payloads
-RUN mkdir -p /app/data
+# Create the data directory and give the node user write access
+RUN mkdir -p /app/data && chown -R node:node /app/data
 
 # Expose the listener port
 EXPOSE 8888

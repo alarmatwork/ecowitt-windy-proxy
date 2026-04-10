@@ -3,7 +3,8 @@ require('dotenv').config(); // loads .env when running locally; no-op in Docker
 
 const express = require('express');
 const cron = require('node-cron');
-const { receiveEcowittData } = require('./routes/ecowitt');
+const { receiveEcowittData, getLatest } = require('./routes/ecowitt');
+const { sendPushoverNotification } = require('./routes/pushover');
 const { uploadToWindy } = require('./jobs/windyUploader');
 const logger = require('./utils/logger');
 
@@ -17,12 +18,14 @@ app.use(express.json());
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.post('/receiveEcowittData', receiveEcowittData);
+app.get('/sendPushoverNotification', sendPushoverNotification);
+app.get('/latest', getLatest);
 
 // Health-check
 app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
-// ── Scheduled job – every 60 seconds ─────────────────────────────────────────
-cron.schedule('*/60 * * * * *', async () => {
+// ── Scheduled job – every 5 minutes ──────────────────────────────────────────
+cron.schedule('0 */5 * * * *', async () => {
   logger.info('[cron] Triggering Windy upload job...');
   try {
     await uploadToWindy();
@@ -36,5 +39,6 @@ app.listen(PORT, () => {
   logger.info(`✅ EcoWitt→Windy proxy running on port ${PORT}`);
   logger.info('   POST /receiveEcowittData  – receives EcoWitt payloads');
   logger.info('   GET  /health              – health check');
-  logger.info('   Windy upload job fires every 60 seconds');
+  logger.info('   GET  /sendPushoverNotification – sends Pushover notification');
+  logger.info('   Windy upload job fires every 5 minutes');
 });

@@ -15,7 +15,7 @@ const DATA_FILE = path.join(DATA_DIR, 'ecowitt_latest.json');
  */
 function receiveEcowittData(req, res) {
   const payload = req.body;
-
+  logger.info(`[ecowitt] Received payload: ${JSON.stringify(payload)}`);
   if (!payload || Object.keys(payload).length === 0) {
     logger.warn('[ecowitt] Received empty payload – ignoring');
     return res.status(400).json({ error: 'Empty payload' });
@@ -42,4 +42,23 @@ function receiveEcowittData(req, res) {
   }
 }
 
-module.exports = { receiveEcowittData, DATA_FILE };
+/**
+ * GET /latest
+ *
+ * Returns the most recently stored EcoWitt payload.
+ */
+function getLatest(_req, res) {
+  if (!fs.existsSync(DATA_FILE)) {
+    return res.status(404).json({ error: 'No data received yet' });
+  }
+
+  try {
+    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error('[ecowitt] Failed to read data file:', err.message);
+    return res.status(500).json({ error: 'Failed to read data' });
+  }
+}
+
+module.exports = { receiveEcowittData, getLatest, DATA_FILE };
