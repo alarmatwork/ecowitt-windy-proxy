@@ -18,7 +18,7 @@ app.use(express.json());
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.post('/receiveEcowittData', receiveEcowittData);
-app.get('/sendPushoverNotification', sendPushoverNotification);
+app.post('/sendPushoverNotification', sendPushoverNotification);
 app.get('/latest', getLatest);
 
 // Health-check

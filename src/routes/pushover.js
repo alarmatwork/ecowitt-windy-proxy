@@ -15,7 +15,7 @@ const AUTH_TOKEN = 'h923h49283h42';
  *   token    – shared secret to authorise the request
  */
 async function sendPushoverNotification(req, res) {
-  const { message, filename, token } = req.query;
+  const { message, filename, token } = { ...req.query, ...req.body };
 
   if (token !== AUTH_TOKEN) {
     logger.warn('[pushover] Rejected request – invalid token');
