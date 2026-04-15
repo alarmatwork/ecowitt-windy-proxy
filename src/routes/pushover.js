@@ -36,13 +36,22 @@ async function sendPushoverNotification(req, res) {
   const body = message + (filename ? ` [${filename}]` : '');
 
   try {
-    await axios.post(PUSHOVER_API, {
-      token: pushoverAppToken,
-      user: pushoverUserKey,
-      message: body,
-    });
+    if (req.file) {
+      const form = new FormData();
+      form.append('token', pushoverAppToken);
+      form.append('user', pushoverUserKey);
+      form.append('message', body);
+      form.append('attachment', new Blob([req.file.buffer], { type: req.file.mimetype }), req.file.originalname);
+      await axios.post(PUSHOVER_API, form);
+    } else {
+      await axios.post(PUSHOVER_API, {
+        token: pushoverAppToken,
+        user: pushoverUserKey,
+        message: body,
+      });
+    }
 
-    logger.info(`[pushover] Notification sent: ${body}`);
+    logger.info(`[pushover] Notification sent: ${body}${req.file ? ` (+attachment: ${req.file.originalname})` : ''}`);
     return res.status(200).json({ success: true });
   } catch (err) {
     const detail = err.response?.data ?? err.message;

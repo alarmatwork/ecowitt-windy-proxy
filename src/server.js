@@ -2,11 +2,14 @@
 require('dotenv').config(); // loads .env when running locally; no-op in Docker
 
 const express = require('express');
+const multer = require('multer');
 const cron = require('node-cron');
 const { receiveEcowittData, getLatest } = require('./routes/ecowitt');
 const { sendPushoverNotification } = require('./routes/pushover');
 const { uploadToWindy } = require('./jobs/windyUploader');
 const logger = require('./utils/logger');
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
 const PORT = process.env.PORT || 8888;
@@ -18,7 +21,7 @@ app.use(express.json());
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.post('/receiveEcowittData', receiveEcowittData);
-app.post('/sendPushoverNotification', sendPushoverNotification);
+app.post('/sendPushoverNotification', upload.single('attachment'), sendPushoverNotification);
 app.get('/latest', getLatest);
 
 // Health-check
