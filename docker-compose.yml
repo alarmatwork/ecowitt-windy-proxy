@@ -4,7 +4,7 @@ services:
   ecowitt-proxy:
     build: .
     image: ecowitt-windy-proxy:latest
-    container_name: ecowitt-windy-proxy
+    container_name: data-proxy
     restart: unless-stopped
     ports:
       - "8888:8888"

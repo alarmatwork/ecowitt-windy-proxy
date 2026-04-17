@@ -36,12 +36,21 @@ async function sendPushoverNotification(req, res) {
   const body = message + (filename ? ` [${filename}]` : '');
 
   try {
-    if (req.file) {
+    const file = req.files?.[0];
+    if (file) {
+      if (!file.mimetype.startsWith('image/')) {
+        logger.warn(`[pushover] Attachment rejected – unsupported type: ${file.mimetype}`);
+        return res.status(400).json({ error: 'Pushover only supports image attachments' });
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        logger.warn(`[pushover] Attachment rejected – too large: ${file.size} bytes`);
+        return res.status(400).json({ error: 'Attachment exceeds Pushover 5 MB limit' });
+      }
       const form = new FormData();
       form.append('token', pushoverAppToken);
       form.append('user', pushoverUserKey);
       form.append('message', body);
-      form.append('attachment', new Blob([req.file.buffer], { type: req.file.mimetype }), req.file.originalname);
+      form.append('attachment', new Blob([file.buffer], { type: file.mimetype }), file.originalname);
       await axios.post(PUSHOVER_API, form);
     } else {
       await axios.post(PUSHOVER_API, {
@@ -51,7 +60,7 @@ async function sendPushoverNotification(req, res) {
       });
     }
 
-    logger.info(`[pushover] Notification sent: ${body}${req.file ? ` (+attachment: ${req.file.originalname})` : ''}`);
+    logger.info(`[pushover] Notification sent: ${body}${file ? ` (+attachment: ${file.originalname})` : ''}`);
     return res.status(200).json({ success: true });
   } catch (err) {
     const detail = err.response?.data ?? err.message;

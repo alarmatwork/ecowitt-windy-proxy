@@ -21,7 +21,7 @@ app.use(express.json());
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.post('/receiveEcowittData', receiveEcowittData);
-app.post('/sendPushoverNotification', upload.single('attachment'), sendPushoverNotification);
+app.post('/sendPushoverNotification', upload.any(), sendPushoverNotification);
 app.get('/latest', getLatest);
 
 // Health-check
@@ -39,7 +39,11 @@ cron.schedule('0 */5 * * * *', async () => {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  logger.info(`✅ EcoWitt→Windy proxy running on port ${PORT}`);
+  const { networkInterfaces } = require('os');
+  const nets = networkInterfaces();
+  const ips = Object.values(nets).flat().filter(n => n.family === 'IPv4' && !n.internal).map(n => n.address);
+  const addr = ips.length ? ips.join(', ') : '127.0.0.1';
+  logger.info(`✅ EcoWitt→Windy proxy running on ${addr}:${PORT}`);
   logger.info('   POST /receiveEcowittData  – receives EcoWitt payloads');
   logger.info('   GET  /health              – health check');
   logger.info('   GET  /sendPushoverNotification – sends Pushover notification');
