@@ -4,7 +4,7 @@ const axios = require('axios');
 const logger = require('../utils/logger');
 
 const PUSHOVER_API = 'https://api.pushover.net/1/messages.json';
-const AUTH_TOKEN = 'h923h49283h42';
+const AUTH_TOKEN = process.env.SERVER_AUTH_TOKEN;
 
 /**
  * GET /sendPushoverNotification

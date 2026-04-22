@@ -37,12 +37,15 @@ npm start
 
 ## Configuration
 
-| Variable | Description | Default |
-|---|---|---|
-| `PORT` | HTTP listen port | `8888` |
-| `WINDY_STATION_ID` | Station hex ID from [stations.windy.com](https://stations.windy.com/stations) | *(required)* |
-| `WINDY_STATION_PASSWORD` | Station password from [stations.windy.com](https://stations.windy.com/stations) | *(required)* |
-| `DATA_DIR` | Directory for the data file | `/app/data` (Docker) or `data/` (local) |
+| Variable                 | Description                                                                     | Default                                 |
+| ------------------------ | ------------------------------------------------------------------------------- | --------------------------------------- |
+| `PORT`                   | HTTP listen port                                                                | `8888`                                  |
+| `WINDY_STATION_ID`       | Station hex ID from [stations.windy.com](https://stations.windy.com/stations)   | _(required)_                            |
+| `WINDY_STATION_PASSWORD` | Station password from [stations.windy.com](https://stations.windy.com/stations) | _(required)_                            |
+| `DATA_DIR`               | Directory for the data file                                                     | `/app/data` (Docker) or `data/` (local) |
+| `PUSHOVER_KEY`           | Pushover User Key                                                               | _(required for Pushover)_               |
+| `PUSHOVER_APP_TOKEN`     | Pushover Application API Token                                                  | _(required for Pushover)_               |
+| `SERVER_AUTH_TOKEN`      | Shared secret to authorize the `/sendPushoverNotification` request              | _(required for Pushover endpoint)_      |
 
 ---
 
@@ -61,27 +64,38 @@ In the **WS View / WS View Plus** app:
 
 ## Unit Conversion Table
 
-| EcoWitt field | Unit | Windy field | Unit |
-|---|---|---|---|
-| `tempf` | °F | `temp` | °C |
-| `humidity` | % | `humidity` | % |
-| `windspeedmph` | mph | `wind` | m/s |
-| `windgustmph` | mph | `gust` | m/s |
-| `winddir` | ° | `winddir` | ° |
-| `baromrelin` | inHg | `mbar` | hPa |
-| `hourlyrainin` | in | `precip` | mm |
-| `solarradiation` | W/m² | `radiation` | W/m² |
-| `uv` | index | `uvi` | index |
-| `dewptf` | °F | `dewpoint` | °C |
+| EcoWitt field    | Unit  | Windy field | Unit  |
+| ---------------- | ----- | ----------- | ----- |
+| `tempf`          | °F    | `temp`      | °C    |
+| `humidity`       | %     | `humidity`  | %     |
+| `windspeedmph`   | mph   | `wind`      | m/s   |
+| `windgustmph`    | mph   | `gust`      | m/s   |
+| `winddir`        | °     | `winddir`   | °     |
+| `baromrelin`     | inHg  | `mbar`      | hPa   |
+| `hourlyrainin`   | in    | `precip`    | mm    |
+| `solarradiation` | W/m²  | `radiation` | W/m²  |
+| `uv`             | index | `uvi`       | index |
+| `dewptf`         | °F    | `dewpoint`  | °C    |
 
 ---
 
 ## Endpoints
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/receiveEcowittData` | Receives & stores EcoWitt payload |
-| `GET` | `/health` | Health check – returns `{"status":"ok"}` |
+| Method     | Path                        | Description                              |
+| ---------- | --------------------------- | ---------------------------------------- |
+| `POST`     | `/receiveEcowittData`       | Receives & stores EcoWitt payload        |
+| `GET`      | `/health`                   | Health check – returns `{"status":"ok"}` |
+| `GET/POST` | `/sendPushoverNotification` | Sends notification to Pushover           |
+
+---
+
+## Pushover Notifications
+
+The `/sendPushoverNotification` endpoint is a convenient utility and is **not required** for the core EcoWitt to Windy functionality. 
+
+It acts as a simple bridge to send formatted messages to Pushover for mobile notifications. This is particularly useful for integrating with local services like **Home Assistant**, **Agent DVR** security cameras, or other automation systems that need to send alerts to your devices.
+
+To use this endpoint, you must provide the `token` query parameter or body field that matches your `SERVER_AUTH_TOKEN`.
 
 ---
 
