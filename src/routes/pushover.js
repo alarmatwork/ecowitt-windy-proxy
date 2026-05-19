@@ -19,7 +19,7 @@ async function sendPushoverNotification(req, res) {
 
   if (token !== AUTH_TOKEN) {
     logger.warn('[pushover] Rejected request – invalid token');
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized', got: token, expected: AUTH_TOKEN ? AUTH_TOKEN.substring(0, 3) + '...' : null });
   }
 
   if (!message) {

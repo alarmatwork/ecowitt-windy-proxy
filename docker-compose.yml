@@ -15,6 +15,7 @@ services:
       - WINDY_STATION_PASSWORD=${WINDY_STATION_PASSWORD}
       - PUSHOVER_KEY=${PUSHOVER_KEY}
       - PUSHOVER_APP_TOKEN=${PUSHOVER_APP_TOKEN}
+      - SERVER_AUTH_TOKEN=${SERVER_AUTH_TOKEN}
     volumes:
       # Named volume – Docker manages permissions, data survives container restarts
       - ecowitt-data:/app/data
